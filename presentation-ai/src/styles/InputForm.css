@@ -1,0 +1,147 @@
+/* Main container for the input form */
+.input-form {
+  width: 100%;
+  max-width: 600px;  /* Limit maximum width */
+  margin: 0 auto;    /* Center the form */
+  padding: 20px;     /* Add space around form */
+}
+
+/* Container wrapper for responsive design */
+.input-form-container {
+  width: 100%;
+  padding: 0;
+}
+
+/* Style for the input type selector buttons container */
+.input-type-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Individual button styles in the selector */
+.input-type-selector button {
+  flex: 1;                     /* Equal width for all buttons */
+  padding: 10px 20px;         /* Inner spacing */
+  margin: 0 5px;              /* Space between buttons */
+  border: none;
+  border-radius: 5px;         /* Rounded corners */
+  background-color: #f0f0f0;  /* Light gray background */
+  color: #666;                /* Dark gray text */
+  cursor: pointer;
+  transition: all 0.3s ease;  /* Smooth hover effect */
+}
+
+/* Hover effect for selector buttons */
+.input-type-selector button:hover {
+  background-color: #1a73e8;  /* Google blue */
+  color: white;
+}
+
+/* Style for active/selected button */
+.input-type-selector button.active {
+  background-color: #000;     /* Black background */
+  color: white;
+}
+
+/* Text input field styling */
+.input-field {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #000;               /* Black text color */
+}
+
+/* Placeholder text style */
+.input-field::placeholder {
+  color: #666;              /* Gray placeholder text */
+}
+
+/* Submit button styling */
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;  /* Blue background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Disabled state for submit button */
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .input-form-container {
+    padding: 1rem;
+  }
+
+  .input-form {
+    padding: 1rem;
+  }
+
+  .input-type-selector {
+    flex-direction: column;  /* Stack buttons vertically on mobile */
+    gap: 0.5rem;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+  }
+}
+
+/* General button styling */
+button {
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Button hover effect */
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Text area specific styling */
+.text-area {
+  min-height: 150px;    /* Minimum height for text area */
+  resize: vertical;     /* Allow vertical resizing only */
+}
+
+/* Document upload section */
+.document-upload {
+  margin-bottom: 15px;
+}
+
+/* Document upload label styling */
+.document-label {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border: 2px dashed #ddd;    /* Dashed border for upload area */
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  color: black;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for document upload area */
+.document-label:hover {
+  border-color: #007bff;      /* Blue border on hover */
+  background-color: #e9ecef;  /* Slightly darker background */
+}
