@@ -9,6 +9,7 @@ import SignUp from './components/SignUp'
 import LoadingSpinner from './components/LoadingSpinner'
 import ForgotPassword from './components/ForgotPassword'
 import { Toaster } from 'react-hot-toast'
+import TemplateGallery from './pages/TemplateGallery'
 import './App.css'
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
               {/* Default route */}
               <Route 
                 path="/" 
-                element={user ? <Navigate to="/home" /> : <Login />} 
+                element={<Navigate to={user ? "/home" : "/login"} />} 
               />
 
               {/* Auth routes */}
@@ -56,6 +57,12 @@ function App() {
               <Route 
                 path="/forgot-password" 
                 element={user ? <Navigate to="/home" /> : <ForgotPassword />} 
+              />
+
+              {/* Add new route for template gallery */}
+              <Route 
+                path="/templates" 
+                element={user ? <TemplateGallery /> : <Navigate to="/login" />} 
               />
 
               {/* Catch all route */}

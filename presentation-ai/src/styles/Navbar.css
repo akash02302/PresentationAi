@@ -5,6 +5,10 @@
     padding: 1.5rem 2rem;
     border-bottom: 1px solid #eee;
     background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
   .logo-link {
@@ -26,6 +30,11 @@
     font-weight: 500;
     font-size: 0.875rem;
     transition: opacity 0.2s;
+  }
+  
+  .nav-link.active {
+    color: #1a73e8;
+    font-weight: 600;
   }
   
   .nav-link:hover {

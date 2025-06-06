@@ -7,15 +7,26 @@ import numpy as np  # For numerical operations
 from video_processor import VideoProcessor  # Custom video processing class
 import os  # For file operations
 from text_processor import TextProcessor  # Custom text processing class
-from document_processor import DocumentProcessor  # Custom document processing class
+from document_processor import IEEEDocumentProcessor  # Custom document processing class
+import threading
+import queue
+from werkzeug.serving import make_server
+import time
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+# Create a queue for processing requests
+processing_queue = queue.Queue()
+processing_lock = threading.Lock()
+
 # Create temporary directory for file uploads
 if not os.path.exists('temp'):
     os.makedirs('temp')
+
+# Global server instance
+server = None
 
 # Health check endpoint
 @app.route('/')
@@ -40,29 +51,31 @@ def process_video():
                 'error': 'No data received'
             }), 400
         
-        # Handle YouTube URL processing
-        if 'youtubeUrl' in data:
-            print("Processing YouTube URL:", data['youtubeUrl'])
-            processor = VideoProcessor()
-            slides = processor.process(data['youtubeUrl'])
-        else:
-            # Handle direct video upload
-            print("Processing uploaded video")
-            video_base64 = data['video'].split(',')[1]  # Remove data URL prefix
-            video_bytes = base64.b64decode(video_base64)  # Decode base64 to bytes
-            
-            # Save video temporarily
-            temp_path = 'temp/temp_video.mp4'
-            with open(temp_path, 'wb') as f:
-                f.write(video_bytes)
-            
-            # Process video and generate slides
-            processor = VideoProcessor()
-            slides = processor.process(temp_path)
-            
-            # Clean up temporary file
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+        # Use a lock to prevent concurrent processing
+        with processing_lock:
+            # Handle YouTube URL processing
+            if 'youtubeUrl' in data:
+                print("Processing YouTube URL:", data['youtubeUrl'])
+                processor = VideoProcessor()
+                slides = processor.process(data['youtubeUrl'])
+            else:
+                # Handle direct video upload
+                print("Processing uploaded video")
+                video_base64 = data['video'].split(',')[1]  # Remove data URL prefix
+                video_bytes = base64.b64decode(video_base64)  # Decode base64 to bytes
+                
+                # Save video temporarily
+                temp_path = 'temp/temp_video.mp4'
+                with open(temp_path, 'wb') as f:
+                    f.write(video_bytes)
+                
+                # Process video and generate slides
+                processor = VideoProcessor()
+                slides = processor.process(temp_path)
+                
+                # Clean up temporary file
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
         
         print("Slides generated:", slides)
         return jsonify({
@@ -128,7 +141,7 @@ def process_document():
         file.save(temp_path)
         
         # Process document and generate slides
-        processor = DocumentProcessor()
+        processor = IEEEDocumentProcessor()
         slides = processor.process_document(temp_path)
         
         # Clean up temporary file
@@ -145,6 +158,22 @@ def process_document():
             'error': str(e)
         }), 500
 
-# Run the Flask app
+def start_server():
+    global server
+    server = make_server('127.0.0.1', 5000, app)
+    server.serve_forever()
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    try:
+        # Start the server in a separate thread
+        server_thread = threading.Thread(target=start_server)
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # Keep the main thread alive
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        if server:
+            server.shutdown()
+        print("Server stopped.") 

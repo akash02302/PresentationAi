@@ -2,7 +2,62 @@ import React from 'react';
 import pptxgen from 'pptxgenjs';
 import { toast } from 'react-hot-toast';
 
-const SlidesViewer = ({ slides }) => {
+const SlidesViewer = ({ slides, template }) => {
+  // Define template styles
+  const templateStyles = {
+    'think-outside': {
+      title: {
+        fontSize: 44,
+        fontColor: '1a73e8',
+        backgroundColor: 'FFFFFF',
+        fontFace: 'Arial',
+        alignment: 'center'
+      },
+      content: {
+        fontSize: 18,
+        fontColor: '666666',
+        bulletColor: '1a73e8',
+        backgroundColor: 'FFFFFF',
+        fontFace: 'Arial',
+        lineSpacing: 1.2
+      }
+    },
+    'mirror-gram': {
+      title: {
+        fontSize: 40,
+        fontColor: '000000',
+        backgroundColor: 'F8F9FA',
+        fontFace: 'Helvetica',
+        alignment: 'left'
+      },
+      content: {
+        fontSize: 16,
+        fontColor: '333333',
+        bulletColor: '000000',
+        backgroundColor: 'F8F9FA',
+        fontFace: 'Helvetica',
+        lineSpacing: 1.5
+      }
+    },
+    'digital-domination': {
+      title: {
+        fontSize: 48,
+        fontColor: 'FFFFFF',
+        backgroundColor: '000000',
+        fontFace: 'Roboto',
+        alignment: 'center'
+      },
+      content: {
+        fontSize: 20,
+        fontColor: 'FFFFFF',
+        bulletColor: '1a73e8',
+        backgroundColor: '000000',
+        fontFace: 'Roboto',
+        lineSpacing: 1.3
+      }
+    }
+  };
+
   // Helper function to split content into chunks
   const splitContentIntoChunks = (text, maxPointsPerSlide = 4) => {
     const points = text.split('. ')
@@ -56,25 +111,34 @@ const SlidesViewer = ({ slides }) => {
 
   const downloadPPT = async () => {
     try {
-      console.log('Starting presentation creation...');
+      console.log('Creating presentation with template:', template);
       const pres = new pptxgen();
-      pres.layout = 'LAYOUT_16x9';
+      
+      // Get template style
+      const style = templateStyles[template] || templateStyles['think-outside'];
+      console.log('Using style:', style);
 
       for (const slide of slides) {
-        console.log('Processing slide:', slide.heading);
+        // Use the template from the slide or fall back to prop
+        const slideTemplate = slide.template || template;
+        const slideStyle = templateStyles[slideTemplate] || style;
         
+        console.log('Processing slide with template:', slideTemplate);
+
         if (slide.is_title) {
-          // Title slide - no need to split
           const titleSlide = pres.addSlide();
+          titleSlide.background = { color: slideStyle.title.backgroundColor };
+          
           titleSlide.addText(slide.heading, {
             x: 0.5,
             y: 1,
             w: '90%',
             h: 1,
-            fontSize: 44,
+            fontSize: slideStyle.title.fontSize,
+            color: slideStyle.title.fontColor,
+            fontFace: slideStyle.title.fontFace,
+            align: slideStyle.title.alignment,
             bold: true,
-            color: '1a73e8',
-            align: 'center',
           });
 
           if (slide.image && slide.image !== 'test_image_data') {
@@ -95,21 +159,24 @@ const SlidesViewer = ({ slides }) => {
             }
           }
         } else {
-          // Content slides - split if needed
-          const contentChunks = splitContentIntoChunks(slide.text);
+          const contentChunks = splitContentIntoChunks(slide.content);
           
           contentChunks.forEach((chunk, index) => {
             const contentSlide = pres.addSlide();
             
-            // Add heading (with continuation marker if split)
+            // Apply content slide styling
+            contentSlide.background = { color: slideStyle.content.backgroundColor };
+            
+            // Add heading
             contentSlide.addText(`${slide.heading}${contentChunks.length > 1 ? ` (${index + 1}/${contentChunks.length})` : ''}`, {
               x: 0.5,
               y: 0.3,
               w: '90%',
               h: 0.5,
-              fontSize: 32,
+              fontSize: slideStyle.content.fontSize,
+              color: slideStyle.content.fontColor,
+              fontFace: slideStyle.content.fontFace,
               bold: true,
-              color: '333333',
             });
 
             // Add image only to first slide of the section
@@ -131,17 +198,18 @@ const SlidesViewer = ({ slides }) => {
               }
             }
 
-            // Add bullet points with updated styling
+            // Add bullet points with template styling
             try {
               contentSlide.addText(chunk, {
                 x: 0.5,
                 y: index === 0 && slide.image ? 5 : 1.2,
                 w: '90%',
                 h: '40%',
-                fontSize: 18,
-                color: '666666',
-                bullet: { type: 'bullet' },
-                lineSpacing: 1.2,
+                fontSize: slideStyle.content.fontSize,
+                color: slideStyle.content.fontColor,
+                fontFace: slideStyle.content.fontFace,
+                bullet: { type: 'bullet', color: slideStyle.content.bulletColor },
+                lineSpacing: slideStyle.content.lineSpacing,
                 paraSpacing: 1.1,
                 margin: 12,
                 valign: 'top',
@@ -154,8 +222,9 @@ const SlidesViewer = ({ slides }) => {
                 y: index === 0 && slide.image ? 5 : 1.2,
                 w: '90%',
                 h: '40%',
-                fontSize: 18,
-                color: '666666',
+                fontSize: slideStyle.content.fontSize,
+                color: slideStyle.content.fontColor,
+                fontFace: slideStyle.content.fontFace,
                 valign: 'top',
               });
             }
@@ -168,9 +237,8 @@ const SlidesViewer = ({ slides }) => {
       console.log('Presentation created successfully!');
       toast.success('Presentation downloaded successfully!');
     } catch (error) {
-      console.error('Detailed error:', error);
-      console.error('Error stack:', error.stack);
-      toast.error('Failed to download presentation. Check console for details.');
+      console.error('Error creating presentation:', error);
+      toast.error('Failed to download presentation');
     }
   };
 
@@ -184,7 +252,7 @@ const SlidesViewer = ({ slides }) => {
       
       <div className="slides-grid">
         {slides.map((slide, index) => {
-          const contentChunks = slide.is_title ? [slide.text] : splitContentIntoChunks(slide.text);
+          const contentChunks = slide.is_title ? [slide.content] : splitContentIntoChunks(slide.content);
           
           return contentChunks.map((chunk, chunkIndex) => (
             <div key={`${index}-${chunkIndex}`} className="slide-preview">

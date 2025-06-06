@@ -1,0 +1,214 @@
+.template-selector {
+  margin: 2rem auto;
+  max-width: 1200px;
+  text-align: center;
+}
+
+.template-selector h2 {
+  font-size: 1.5rem;
+  color: #000;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.templates-carousel {
+  display: flex;
+  gap: 2rem;
+  overflow-x: auto;
+  padding: 1rem;
+  scroll-snap-type: x mandatory;
+}
+
+.template-slide {
+  flex: 0 0 auto;
+  width: 350px;
+  position: relative;
+  scroll-snap-align: start;
+}
+
+.template-content {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.template-preview {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.template-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.template-content:hover .template-overlay {
+  opacity: 1;
+}
+
+.use-template-btn,
+.preview-btn {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.use-template-btn {
+  background: #1a73e8;
+  color: white;
+}
+
+.use-template-btn:hover {
+  background: #1557b0;
+}
+
+.preview-btn {
+  background: white;
+  color: #000;
+}
+
+.preview-btn:hover {
+  background: #f0f0f0;
+}
+
+.checkout-button {
+  margin-top: 2rem;
+  padding: 12px 24px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.checkout-button:hover {
+  background: #333;
+}
+
+/* Hide scrollbar but keep functionality */
+.templates-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.templates-carousel {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Add to existing styles */
+.preview-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.preview-modal {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-preview {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.preview-content {
+  padding: 2rem;
+}
+
+.preview-slideshow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.preview-image {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #f8f9fa;
+}
+
+.slide-nav {
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #000;
+  transition: all 0.3s ease;
+}
+
+.slide-nav:hover {
+  background: #000;
+  color: white;
+}
+
+.preview-details {
+  padding: 1rem 0;
+}
+
+.preview-details p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}

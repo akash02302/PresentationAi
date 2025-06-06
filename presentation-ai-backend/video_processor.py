@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import ViTFeatureExtractor, ViTModel
+from transformers import ViTImageProcessor, ViTModel
 from PIL import Image
 import pytesseract
 import base64
@@ -17,7 +17,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 class VideoProcessor:
     def __init__(self):
         # Initialize the ViT model for feature extraction
-        self.feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
+        self.feature_extractor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
         self.vit_model = ViTModel.from_pretrained('google/vit-base-patch16-224')
         
         # Initialize LSTM for temporal analysis
@@ -30,6 +30,23 @@ class VideoProcessor:
 
         self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
         self.audio_model = whisper.load_model("base")
+
+        # Initialize the model weights properly
+        self._initialize_model_weights()
+
+    def _initialize_model_weights(self):
+        # Initialize the LSTM weights
+        for name, param in self.lstm.named_parameters():
+            if 'weight' in name:
+                nn.init.xavier_uniform_(param)
+            elif 'bias' in name:
+                nn.init.zeros_(param)
+
+        # Initialize the ViT model's pooler weights if they exist
+        if hasattr(self.vit_model, 'pooler'):
+            if hasattr(self.vit_model.pooler, 'dense'):
+                nn.init.xavier_uniform_(self.vit_model.pooler.dense.weight)
+                nn.init.zeros_(self.vit_model.pooler.dense.bias)
 
     def process(self, video_input):
         try:
@@ -220,7 +237,7 @@ class VideoProcessor:
             
         except Exception as e:
             print(f"All transcript methods failed: {e}")
-            return [{"heading": "Content", "text": "No text could be extracted from the video"}]
+            return [{"heading": "Content", "content": "No text could be extracted from the video"}]
 
     def _organize_content(self, text):
         try:
@@ -271,7 +288,7 @@ class VideoProcessor:
                         
                         sections.append({
                             "heading": heading,
-                            "text": summary
+                            "content": summary
                         })
                         current_section = []
             
@@ -279,14 +296,14 @@ class VideoProcessor:
             if not sections:
                 sections = [{
                     "heading": "Key Points",
-                    "text": self._summarize_text(text)
+                    "content": self._summarize_text(text)
                 }]
             
             return sections
         
         except Exception as e:
             print(f"Error organizing content: {e}")
-            return [{"heading": "Content", "text": text}]
+            return [{"heading": "Content", "content": content}]
 
     def _summarize_text(self, text):
         try:
@@ -361,7 +378,7 @@ class VideoProcessor:
         # Create title slide
         title_slide = {
             'image': self._encode_frame(frames[0]),
-            'text': 'Video Summary',
+            'content': 'Video Summary',
             'heading': 'Video Presentation',
             'is_title': True
         }
@@ -376,7 +393,7 @@ class VideoProcessor:
             
             slide = {
                 'image': self._encode_frame(frame),
-                'text': section['text'],
+                'content': section['content'],
                 'heading': section['heading'],
                 'timestamp': int(important_indices[i]),
                 'is_title': False
